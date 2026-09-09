@@ -2,6 +2,9 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from sklearn.ensemble import RandomForestClassifier
+import plotly.graph_objects as go
+import folium
+from streamlit_folium import st_folium
 
 # ----------------------------
 # PAGE CONFIG
