@@ -139,7 +139,7 @@ fig = go.Figure(
     )
 )
 
-st.plotly_chart(fig, use_container_width=True)
+st.subheader("⏳ Predicted Lead Time")  if prediction == 2:     st.error("Flood Probability: 89%")     st.error("Estimated Impact Time: 2 Hours")  elif prediction == 1:     st.warning("Flood Probability: 55%")     st.warning("Estimated Impact Time: 6 Hours")  else:     st.success("Flood Probability: 12%")     st.success("No Immediate Threat")
 
 # -----------------------------
 # VILLAGE RISK MAP
@@ -148,10 +148,11 @@ st.subheader("📍 Village Risk Monitoring")
 
 locations = pd.DataFrame({
     "Village":[
-        "Village A",
-        "Village B",
-        "Village C",
-        "Village D"
+    "Joshimath",
+    "Chamoli",
+    "Rudraprayag",
+    "Karnaprayag"
+]
     ],
     "Latitude":[30.31,30.34,30.37,30.39],
     "Longitude":[78.03,78.05,78.08,78.11],
