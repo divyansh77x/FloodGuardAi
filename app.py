@@ -363,4 +363,4 @@ Output:
 Flood Risk Forecast
 """)
 
-st.success("✅ SIH Prototype Ready")
+st.success("✅")
