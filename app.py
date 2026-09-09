@@ -1,32 +1,4 @@
-import streamlit as st
-import pandas as pd
-from sklearn.ensemble import RandomForestClassifier
-import plotly.graph_objects as go
-import folium
-from streamlit_folium import st_folium
 
-# -----------------------------
-# PAGE CONFIG
-# -----------------------------
-st.set_page_config(
-    page_title="FloodGuard AI",
-    page_icon="🌊",
-    layout="wide"
-)
-
-# -----------------------------
-# CUSTOM CSS
-# -----------------------------
-st.markdown("""
-<style>
-.main {
-    background-color:#f8fafc;
-}
-</style>
-""", unsafe_allow_html=True)
-
-# -----------------------------
-# TRAINING DATA
 # -----------------------------
 data = pd.DataFrame({
     "rainfall":[50,100,150,200,250,300,350,400,450],
