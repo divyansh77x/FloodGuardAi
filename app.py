@@ -6,32 +6,34 @@ import plotly.graph_objects as go
 import folium
 from streamlit_folium import st_folium
 
-# ----------------------------
+# -----------------------------
 # PAGE CONFIG
-# ----------------------------
+# -----------------------------
 st.set_page_config(
     page_title="FloodGuard AI",
     page_icon="🌊",
     layout="wide"
 )
 
-# ----------------------------
+# -----------------------------
 # CUSTOM CSS
-# ----------------------------
+# -----------------------------
 st.markdown("""
 <style>
 .main {
-    background-color:#f5f7fa;
+    background-color: #f8fafc;
 }
-h1,h2,h3{
-    color:#003366;
+.metric-card {
+    background: white;
+    padding: 10px;
+    border-radius: 10px;
 }
 </style>
 """, unsafe_allow_html=True)
 
-# ----------------------------
-# SAMPLE TRAINING DATA
-# ----------------------------
+# -----------------------------
+# TRAINING DATA
+# -----------------------------
 data = pd.DataFrame({
     "rainfall":[50,100,150,200,250,300,350,400,450],
     "soil":[20,35,50,65,75,85,90,95,98],
@@ -50,42 +52,36 @@ model = RandomForestClassifier(
 
 model.fit(X,y)
 
-# ----------------------------
+# -----------------------------
 # HEADER
-# ----------------------------
+# -----------------------------
 st.title("🌊 FloodGuard AI")
 st.subheader("Hyper-Local Flash Flood Prediction System")
 
-st.markdown("---")
-
-# ----------------------------
+# -----------------------------
 # SIDEBAR
-# ----------------------------
-st.sidebar.header("Input Parameters")
+# -----------------------------
+st.sidebar.header("Live Sensor Inputs")
 
 rainfall = st.sidebar.slider(
-    "Rainfall (mm)",
-    0,500,180
+    "Rainfall (mm)", 0, 500, 180
 )
 
 soil = st.sidebar.slider(
-    "Soil Moisture (%)",
-    0,100,60
+    "Soil Moisture (%)", 0, 100, 60
 )
 
 slope = st.sidebar.slider(
-    "Slope Angle",
-    0,60,25
+    "Slope Angle (°)", 0, 60, 25
 )
 
 river = st.sidebar.slider(
-    "River Level (m)",
-    0,10,5
+    "River Level (m)", 0, 10, 5
 )
 
-# ----------------------------
-# RISK SCORE
-# ----------------------------
+# -----------------------------
+# PREDICTION
+# -----------------------------
 risk_score = (
     rainfall*0.35 +
     soil*0.25 +
@@ -94,24 +90,24 @@ risk_score = (
 )/2
 
 prediction = model.predict(
-    [[rainfall,soil,slope,river]]
+    [[rainfall, soil, slope, river]]
 )[0]
 
-# ----------------------------
-# METRICS
-# ----------------------------
+# -----------------------------
+# KPI CARDS
+# -----------------------------
 c1,c2,c3,c4 = st.columns(4)
 
-c1.metric("Rainfall",f"{rainfall} mm")
-c2.metric("Soil Moisture",f"{soil}%")
-c3.metric("Slope",f"{slope}°")
-c4.metric("River Level",f"{river} m")
+c1.metric("🌧 Rainfall", f"{rainfall} mm")
+c2.metric("💧 Soil Moisture", f"{soil}%")
+c3.metric("⛰ Slope", f"{slope}°")
+c4.metric("🌊 River Level", f"{river} m")
 
 st.markdown("---")
 
-# ----------------------------
-# RESULT
-# ----------------------------
+# -----------------------------
+# FLOOD STATUS
+# -----------------------------
 if prediction == 0:
     st.success("🟢 LOW FLOOD RISK")
 
@@ -121,28 +117,34 @@ elif prediction == 1:
 else:
     st.error("🔴 HIGH FLOOD RISK")
 
+# -----------------------------
+# GAUGE
+# -----------------------------
 st.subheader("Flood Risk Index")
 
-fig = go.Figure(go.Indicator(
-    mode="gauge+number",
-    value=min(risk_score,100),
-    title={'text': "Risk Score"},
-    gauge={
-        'axis': {'range': [0,100]},
-        'bar': {'color': "darkblue"},
-        'steps': [
-            {'range':[0,40],'color':'lightgreen'},
-            {'range':[40,70],'color':'gold'},
-            {'range':[70,100],'color':'red'}
-        ]
-    }
-))
+fig = go.Figure(
+    go.Indicator(
+        mode="gauge+number",
+        value=min(risk_score,100),
+        title={"text":"Risk Score"},
+        gauge={
+            "axis":{"range":[0,100]},
+            "bar":{"color":"darkblue"},
+            "steps":[
+                {"range":[0,40],"color":"lightgreen"},
+                {"range":[40,70],"color":"gold"},
+                {"range":[70,100],"color":"red"}
+            ]
+        }
+    )
+)
 
 st.plotly_chart(fig, use_container_width=True)
-# ----------------------------
-# MAP DATA
-# ----------------------------
-st.subheader("Village Risk Monitoring")
+
+# -----------------------------
+# VILLAGE RISK MAP
+# -----------------------------
+st.subheader("📍 Village Risk Monitoring")
 
 locations = pd.DataFrame({
     "Village":[
@@ -161,49 +163,45 @@ locations = pd.DataFrame({
     ]
 })
 
-m = folium.Map(
-    location=[30.34,78.05],
-    zoom_start=11,
-    tiles="CartoDB positron"
-)
-
 risk_colors = {
     "Low":"green",
     "Medium":"orange",
     "High":"red"
 }
 
+m = folium.Map(
+    location=[30.34,78.05],
+    zoom_start=11,
+    tiles="CartoDB positron"
+)
+
 for _, row in locations.iterrows():
 
     folium.CircleMarker(
         location=[row["Latitude"], row["Longitude"]],
         radius=12,
-        popup=f'{row["Village"]} - {row["Risk"]}',
+        popup=f"{row['Village']} - {row['Risk']}",
         color=risk_colors[row["Risk"]],
-        fill=True
+        fill=True,
+        fill_opacity=0.8
     ).add_to(m)
 
 st_folium(m, height=500, width=1200)
-    })
-)
 
-# ----------------------------
-# ALERT SYSTEM
-# ----------------------------
+# -----------------------------
+# ALERT CENTER
+# -----------------------------
 st.subheader("🚨 Early Warning Center")
 
 if prediction == 2:
 
     st.error("""
-    ALERT GENERATED
+    HIGH ALERT
 
     • Notify District Authority
-
     • Send SMS Alerts
-
     • Activate Emergency Team
-
-    • Start Evacuation Process
+    • Begin Evacuation
     """)
 
 elif prediction == 1:
@@ -211,11 +209,9 @@ elif prediction == 1:
     st.warning("""
     WATCH MODE
 
-    • Increased Monitoring
-
+    • Increase Monitoring
     • Alert Local Officials
-
-    • Keep Rescue Teams Ready
+    • Prepare Rescue Teams
     """)
 
 else:
@@ -226,16 +222,10 @@ else:
     • Continue Monitoring
     """)
 
-# ----------------------------
-# EVACUATION PANEL
-# ----------------------------
-# ----------------------------
+# -----------------------------
 # EVACUATION MAP
-# ----------------------------
-import folium
-from streamlit_folium import st_folium
-
-st.subheader("🗺 Safe Evacuation Route")
+# -----------------------------
+st.subheader("🗺 Evacuation Route")
 
 village_lat = 30.3165
 village_lon = 78.0322
@@ -243,58 +233,79 @@ village_lon = 78.0322
 shelter_lat = 30.3265
 shelter_lon = 78.0422
 
-m = folium.Map(
+route_map = folium.Map(
     location=[village_lat, village_lon],
     zoom_start=13
 )
 
 folium.Marker(
     [village_lat, village_lon],
-    popup="Risk Zone",
+    popup="Flood Risk Zone",
     tooltip="Village"
-).add_to(m)
+).add_to(route_map)
 
 folium.Marker(
     [shelter_lat, shelter_lon],
-    popup="Government School Shelter",
+    popup="Government Shelter",
     tooltip="Safe Shelter"
-).add_to(m)
+).add_to(route_map)
 
 folium.PolyLine(
     [
         [village_lat, village_lon],
         [shelter_lat, shelter_lon]
     ],
-    weight=5
-).add_to(m)
+    weight=6
+).add_to(route_map)
 
-st_folium(m, width=900, height=500)
+st_folium(route_map, height=450)
+
+# -----------------------------
+# AI RECOMMENDATIONS
+# -----------------------------
+st.subheader("🤖 AI Recommendations")
 
 if prediction == 2:
-    st.error("🔴 Immediate evacuation recommended")
-    st.write("Nearest Safe Shelter: Government School")
-    st.write("Estimated Evacuation Time: 30 mins")
+
+    st.error("""
+    Immediate evacuation recommended.
+
+    • Open shelters
+    • Deploy rescue teams
+    • Send emergency alerts
+    • Monitor river level every 15 minutes
+    """)
 
 elif prediction == 1:
-    st.warning("🟡 Keep evacuation route ready")
+
+    st.warning("""
+    Elevated flood conditions.
+
+    • Prepare evacuation logistics
+    • Keep rescue teams on standby
+    • Monitor weather updates
+    """)
 
 else:
-    st.success("🟢 No evacuation required")
+
+    st.success("""
+    Conditions stable.
+
+    • Continue monitoring
+    • No evacuation required
+    """)
 
 st.markdown("---")
 
 st.info("""
 AI Inputs Used
 
-✓ Rainfall Data
-
-✓ Soil Moisture
-
-✓ River Level
-
-✓ Terrain Slope
-
-✓ Historical Disaster Data
+✓ Rainfall Data  
+✓ Soil Moisture  
+✓ River Level  
+✓ Terrain Slope  
+✓ Historical Disaster Data  
+✓ Machine Learning Prediction
 """)
 
-st.success("SIH Prototype Ready")
+st.success("✅ SIH Prototype Ready")
