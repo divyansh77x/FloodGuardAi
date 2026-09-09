@@ -196,17 +196,57 @@ else:
 # ----------------------------
 # EVACUATION PANEL
 # ----------------------------
-st.subheader("Safe Evacuation Recommendation")
+# ----------------------------
+# EVACUATION MAP
+# ----------------------------
+import folium
+from streamlit_folium import st_folium
+
+st.subheader("🗺 Safe Evacuation Route")
+
+village_lat = 30.3165
+village_lon = 78.0322
+
+shelter_lat = 30.3265
+shelter_lon = 78.0422
+
+m = folium.Map(
+    location=[village_lat, village_lon],
+    zoom_start=13
+)
+
+folium.Marker(
+    [village_lat, village_lon],
+    popup="Risk Zone",
+    tooltip="Village"
+).add_to(m)
+
+folium.Marker(
+    [shelter_lat, shelter_lon],
+    popup="Government School Shelter",
+    tooltip="Safe Shelter"
+).add_to(m)
+
+folium.PolyLine(
+    [
+        [village_lat, village_lon],
+        [shelter_lat, shelter_lon]
+    ],
+    weight=5
+).add_to(m)
+
+st_folium(m, width=900, height=500)
 
 if prediction == 2:
+    st.error("🔴 Immediate evacuation recommended")
     st.write("Nearest Safe Shelter: Government School")
     st.write("Estimated Evacuation Time: 30 mins")
 
 elif prediction == 1:
-    st.write("Prepare Evacuation Routes")
+    st.warning("🟡 Keep evacuation route ready")
 
 else:
-    st.write("No Evacuation Required")
+    st.success("🟢 No evacuation required")
 
 st.markdown("---")
 
