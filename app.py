@@ -118,11 +118,24 @@ elif prediction == 1:
 else:
     st.error("🔴 HIGH FLOOD RISK")
 
-st.subheader("Flood Risk Score")
+st.subheader("Flood Risk Index")
 
-st.progress(min(int(risk_score),100))
-st.write(f"Risk Score: {round(risk_score,1)}/100")
+fig = go.Figure(go.Indicator(
+    mode="gauge+number",
+    value=min(risk_score,100),
+    title={'text': "Risk Score"},
+    gauge={
+        'axis': {'range': [0,100]},
+        'bar': {'color': "darkblue"},
+        'steps': [
+            {'range':[0,40],'color':'lightgreen'},
+            {'range':[40,70],'color':'gold'},
+            {'range':[70,100],'color':'red'}
+        ]
+    }
+))
 
+st.plotly_chart(fig, use_container_width=True)
 # ----------------------------
 # MAP DATA
 # ----------------------------
@@ -145,12 +158,29 @@ locations = pd.DataFrame({
     ]
 })
 
-st.dataframe(locations)
+m = folium.Map(
+    location=[30.34,78.05],
+    zoom_start=11,
+    tiles="CartoDB positron"
+)
 
-st.map(
-    pd.DataFrame({
-        "lat":locations["Latitude"],
-        "lon":locations["Longitude"]
+risk_colors = {
+    "Low":"green",
+    "Medium":"orange",
+    "High":"red"
+}
+
+for _, row in locations.iterrows():
+
+    folium.CircleMarker(
+        location=[row["Latitude"], row["Longitude"]],
+        radius=12,
+        popup=f'{row["Village"]} - {row["Risk"]}',
+        color=risk_colors[row["Risk"]],
+        fill=True
+    ).add_to(m)
+
+st_folium(m, height=500, width=1200)
     })
 )
 
