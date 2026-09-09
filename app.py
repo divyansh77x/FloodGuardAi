@@ -297,15 +297,76 @@ else:
 
 st.markdown("---")
 
-st.info("""
-AI Inputs Used
+st.subheader("📡 Multi-Source Data Integration")
 
-✓ Rainfall Data  
-✓ Soil Moisture  
-✓ River Level  
-✓ Terrain Slope  
-✓ Historical Disaster Data  
-✓ Machine Learning Prediction
-""")
+col1, col2, col3 = st.columns(3)
+
+with col1:
+    st.info("""
+    🌧 Rainfall Data
+
+    Source:
+    IMD Automatic Weather Station
+
+    Location:
+    Village Rain Gauge Station
+    """)
+
+with col2:
+    st.info("""
+    🌱 Soil Moisture
+
+    Sensor:
+    Capacitive Soil Moisture Sensor
+
+    Location:
+    Agricultural Fields
+    """)
+
+with col3:
+    st.info("""
+    🌊 River Water Level
+
+    Sensor:
+    Ultrasonic Water Level Sensor
+
+    Location:
+    River / Stream Bank
+    """)
+
+col4, col5, col6 = st.columns(3)
+
+with col4:
+    st.info("""
+    ⛰ Terrain & Slope
+
+    Source:
+    ISRO Bhuvan DEM
+
+    Technology:
+    GIS Analysis
+    """)
+
+with col5:
+    st.info("""
+    📚 Historical Flood Data
+
+    Source:
+    NDMA + Central Water Commission
+
+    Coverage:
+    Past Flood Events
+    """)
+
+with col6:
+    st.info("""
+    🤖 AI Prediction Engine
+
+    Model:
+    Random Forest
+
+    Output:
+    Flood Risk Forecast
+    """)
 
 st.success("✅ SIH Prototype Ready")
